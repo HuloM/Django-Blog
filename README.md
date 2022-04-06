@@ -1,2 +1,2 @@
-# learnDjangoRestWMongo
+# Django Blog
  
