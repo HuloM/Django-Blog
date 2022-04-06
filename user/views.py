@@ -10,3 +10,8 @@ from .serializers import UserSerializer
 class UserViewSet(viewsets.ModelViewSet):
 	queryset = User.objects.all()
 	serializer_class = UserSerializer
+
+	@action(detail=True, methods=['PUT'])
+	def update_user(self, request, pk=None):
+		response = {'message': 'test'}
+		return Response(response, status=status.HTTP_200_OK)
