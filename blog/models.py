@@ -23,3 +23,17 @@ class Post(models.Model):
 			slug=self.slug or None,
 			author=self.author or None
 		)
+
+
+class Comment(models.Model):
+	comment = models.TextField()
+	author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comment_author', null=True, default=None)
+	post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='post', null=True, default=None)
+
+	def as_json(self):
+		return dict(
+			id=self.id,
+			comment=self.comment or None,
+			author=self.author or None,
+			post=self.post or None
+		)

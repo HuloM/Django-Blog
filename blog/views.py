@@ -3,9 +3,9 @@ from django.utils.text import slugify
 from rest_framework import viewsets, status
 from rest_framework.decorators import parser_classes
 from rest_framework.response import Response
-from rest_framework.parsers import MultiPartParser
+from rest_framework.parsers import MultiPartParser, JSONParser
 
-from .models import Post
+from .models import Post, Comment
 from .serializers import PostSerializer
 
 
@@ -59,4 +59,38 @@ class PostsViewSet(viewsets.ModelViewSet):
 		storage.delete(path)
 		post.delete()
 		return Response({'post': post.as_json(), 'message': 'post was deleted'}, status.HTTP_200_OK)
+
+
+class CommentsViewSet(viewsets.ModelViewSet):
+	queryset = Comment.objects.all()
+	serializer_class = PostSerializer
+
+	def list(self, request, **kwargs):
+		comments = Comment.objects.all()
+		return Response(
+			{
+				'posts': [comment.as_json() for comment in comments],
+				'message': 'list of comments retrieved'
+			 }, status.HTTP_200_OK)
+
+	@parser_classes(JSONParser)
+	def create(self, request):
+		comment = Comment(
+			comment=request.data['comment'],
+			post=request.data['post'] or None,
+			author=request.data['author'] or None
+		)
+		comment.save()
+		return Response({'comment created'}, status.HTTP_200_OK)
+
+	def retrieve(self, request, pk=None, **kwargs):
+		queryset = Comment.objects.all()
+		comment = get_object_or_404(queryset, pk=pk)
+		return Response({'post': comment.as_json(), 'message': 'single comment retrieved'}, status.HTTP_200_OK)
+
+	def update(self, request, pk=None, **kwargs):
+		return Response({'message': 'A comment may not be changed once posted'}, status.HTTP_401_UNAUTHORIZED)
+
+	def destroy(self, request, pk=None, **kwargs):
+		return Response({'message': 'A comment may not be deleted once posted'}, status.HTTP_401_UNAUTHORIZED)
 
