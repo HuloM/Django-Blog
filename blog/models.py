@@ -9,16 +9,17 @@ class Post(models.Model):
 	body = models.TextField()
 	date_created = models.DateField(auto_now_add=True)
 	date_updated = models.DateField(auto_now=True)
-	slug = models.SlugField(max_length=100)
+	slug = models.SlugField(max_length=100, editable=False)
 	author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='author', null=True, default=None)
 
 	def as_json(self):
 		return dict(
 			id=self.id,
 			title=self.title or None,
-			image=self.image or None,
+			image=str(self.image.url) or None,
 			body=self.body or None,
-			date=self.date or None,
+			date_created=self.date_created or None,
+			date_updated=self.date_created or None,
 			slug=self.slug or None,
 			author=self.author or None
 		)
