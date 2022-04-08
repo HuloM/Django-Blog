@@ -8,3 +8,11 @@ class User(models.Model):
 	last_name = models.CharField(max_length=100)
 	email = models.CharField(max_length=100)
 	password = models.CharField(max_length=100)
+
+	def as_json(self):
+		return dict(
+			id=self.id,
+			username=self.username or None,
+			name=(self.first_name + ' ' + self.last_name) or None,
+			email=self.email or None
+		)
