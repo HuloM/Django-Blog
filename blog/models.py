@@ -1,9 +1,12 @@
+import uuid
+
 from django.db import models
 from user.models import User
 
 
 # Create your models here.
 class Post(models.Model):
+	id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 	title = models.CharField(max_length=100)
 	image = models.ImageField(upload_to='images', null=True)
 	body = models.TextField()
@@ -26,6 +29,7 @@ class Post(models.Model):
 
 
 class Comment(models.Model):
+	id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 	comment = models.TextField()
 	author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comment_author', null=True, default=None)
 	post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='post', null=True, default=None)
