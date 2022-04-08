@@ -8,5 +8,5 @@ router.register('posts', views.PostsViewSet)
 router.register('posts/comments', views.CommentsViewSet)
 
 urlpatterns = [
-    path('/', include(router.urls))
+    path('', include(router.urls))
 ]
