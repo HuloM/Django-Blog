@@ -1,3 +1,4 @@
+from django.core import serializers
 from django.shortcuts import get_object_or_404
 from django.utils.text import slugify
 from rest_framework import viewsets, status
@@ -5,6 +6,7 @@ from rest_framework.decorators import parser_classes
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, JSONParser
 
+from user.models import User
 from .models import Post, Comment
 from .serializers import PostSerializer
 
@@ -21,12 +23,13 @@ class PostsViewSet(viewsets.ModelViewSet):
 
 	@parser_classes(MultiPartParser)
 	def create(self, request):
+		user = User.objects.get(uuid=request.data['author'])
 		post = Post(
 			title=request.data['title'],
 			image=request.data['image'],
 			body=request.data['body'],
 			slug=slugify(request.data['title']),
-			author=request.data['author'] or None
+			author=user
 		)
 		post.save()
 		return Response({'post': post.as_json(), 'message': 'Post created'}, status.HTTP_200_OK)
