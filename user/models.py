@@ -1,16 +1,12 @@
 import uuid
 
+from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 
 # Create your models here.
-class User(models.Model):
+class User(AbstractUser):
 	uuid = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
-	username = models.CharField(max_length=100)
-	first_name = models.CharField(max_length=100)
-	last_name = models.CharField(max_length=100)
-	email = models.CharField(max_length=100)
-	password = models.CharField(max_length=100)
 
 	def as_json(self):
 		return dict(
