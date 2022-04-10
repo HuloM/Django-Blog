@@ -10,8 +10,8 @@ class Post(models.Model):
 	title = models.CharField(max_length=100)
 	image = models.ImageField(upload_to='images', null=True)
 	body = models.TextField()
-	date_created = models.DateField(auto_now_add=True)
-	date_updated = models.DateField(auto_now=True)
+	date_created = models.DateTimeField(auto_now_add=True)
+	date_updated = models.DateTimeField(auto_now=True)
 	slug = models.SlugField(max_length=100, editable=False)
 	author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='author')
 
