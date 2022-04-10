@@ -36,7 +36,6 @@ class User(AbstractBaseUser):
 	def as_json(self):
 		return dict(
 			id=self.id,
-			uuid=self.uuid,
 			username=self.username or None,
 			name=(self.first_name + ' ' + self.last_name) or None,
 			email=self.email or None

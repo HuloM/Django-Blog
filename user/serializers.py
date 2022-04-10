@@ -1,5 +1,6 @@
 from abc import ABC
 
+from django.contrib.auth.hashers import make_password
 from rest_framework import serializers
 from rest_auth.registration.serializers import RegisterSerializer
 from .models import User
@@ -32,14 +33,14 @@ class RegisterUserSerializer(RegisterSerializer):
 
 	def save(self, request):
 		self.cleaned_data = self.get_cleaned_data()
-		print(self.cleaned_data)
+		hashed_password = make_password(self.cleaned_data['password'])
 		user = User(
 			email=self.cleaned_data['email'],
 			username=self.cleaned_data['username'],
 			first_name=self.cleaned_data['first_name'],
 			last_name=self.cleaned_data['last_name'],
+			password=hashed_password
 		)
-		user.set_password(self.cleaned_data['password'])
 		user.save()
 		return user
 

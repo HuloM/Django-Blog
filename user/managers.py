@@ -4,9 +4,9 @@ from django.contrib.auth.base_user import BaseUserManager
 class CustomUserManager(BaseUserManager):
     def create_user(self, username, email, first_name, last_name, password, **extra_fields):
         if not email:
-            raise ValueError('The Email must be set')
+            raise ValueError('the email must be set')
         if not username:
-            raise ValueError('The Username must be set')
+            raise ValueError('the username must be set')
         email = self.normalize_email(email)
         user = self.model(
             username=username,
@@ -19,12 +19,12 @@ class CustomUserManager(BaseUserManager):
         return user
 
     def create_superuser(self, username, email, first_name, last_name, password, **extra_fields):
-        extra_fields.setdefault('is_staff', True)
-        extra_fields.setdefault('is_superuser', True)
-        extra_fields.setdefault('is_active', True)
+        extra_fields.setdefault('is_staff', true)
+        extra_fields.setdefault('is_superuser', true)
+        extra_fields.setdefault('is_active', true)
 
-        if extra_fields.get('is_staff') is not True:
-            raise ValueError('Superuser must have is_staff=True.')
-        if extra_fields.get('is_superuser') is not True:
-            raise ValueError('Superuser must have is_superuser=True.')
+        if extra_fields.get('is_staff') is not true:
+            raise valueerror('superuser must have is_staff=true.')
+        if extra_fields.get('is_superuser') is not true:
+            raise valueerror('superuser must have is_superuser=true.')
         return self.create_user(username, email, first_name, last_name, password, **extra_fields)

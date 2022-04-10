@@ -23,13 +23,13 @@ class PostsViewSet(viewsets.ModelViewSet):
 
 	@parser_classes(MultiPartParser)
 	def create(self, request):
-		user = User.objects.get(uuid=request.data['author'])
+		# user = User.objects.get(uuid=request.data['author'])
 		post = Post(
 			title=request.data['title'],
 			image=request.data['image'],
 			body=request.data['body'],
 			slug=slugify(request.data['title']),
-			author=user
+			author=request.user
 		)
 		post.save()
 		return Response({'post': post.as_json(), 'message': 'Post created'}, status.HTTP_200_OK)
