@@ -6,7 +6,6 @@ from django.db import models
 
 # Create your models here.
 class Post(models.Model):
-	uuid = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 	title = models.CharField(max_length=100)
 	image = models.ImageField(upload_to='images', null=True)
 	body = models.TextField()
@@ -18,7 +17,6 @@ class Post(models.Model):
 	def as_json(self):
 		return dict(
 			id=self.id,
-			uuid=self.uuid,
 			title=self.title,
 			image=str(self.image.url),
 			body=self.body,
@@ -30,7 +28,6 @@ class Post(models.Model):
 
 
 class Comment(models.Model):
-	uuid = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 	comment = models.TextField()
 	author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='comment_author')
 	post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='post')
