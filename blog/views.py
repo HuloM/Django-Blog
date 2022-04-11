@@ -12,7 +12,6 @@ from .serializers import PostSerializer
 
 
 # Create your views here.
-# TODO add user authentication
 class PostsViewSet(viewsets.ModelViewSet):
 	queryset = Post.objects.all()
 	serializer_class = PostSerializer
@@ -23,7 +22,6 @@ class PostsViewSet(viewsets.ModelViewSet):
 
 	@parser_classes(MultiPartParser)
 	def create(self, request):
-		# user = User.objects.get(uuid=request.data['author'])
 		post = Post(
 			title=request.data['title'],
 			image=request.data['image'],
@@ -43,26 +41,31 @@ class PostsViewSet(viewsets.ModelViewSet):
 	def update(self, request, pk=None):
 		queryset = Post.objects.all()
 		post = get_object_or_404(queryset, pk=pk)
-		storage, path, image = post.image.storage, post.image.path, str(post.image).split('/')[1]
-		post.title = request.data['title'] or post.title
+		if post.author is request.user:
+			storage, path, image = post.image.storage, post.image.path, str(post.image).split('/')[1]
+			post.title = request.data['title'] or post.title
 
-		if request.data['image']:
-			post.image = request.data['image'] or path.image
-			if str(post.image) != image:
-				storage.delete(path)
-		post.body = request.data['body'] or post.body
-		post.slug = slugify(request.data['title'] or post.title)
-		post.save()
-		return Response({'post': post.as_json(), 'message': 'post updated'}, status.HTTP_200_OK)
+			if request.data['image']:
+				post.image = request.data['image'] or path.image
+				if str(post.image) != image:
+					storage.delete(path)
+			post.body = request.data['body'] or post.body
+			post.slug = slugify(request.data['title'] or post.title)
+			post.save()
+			return Response({'post': post.as_json(), 'message': 'post updated'}, status.HTTP_200_OK)
+		else:
+			return Response({'message': 'user is not author of post'}, status.HTTP_401_UNAUTHORIZED)
 
 	def destroy(self, request, pk=None, **kwargs):
 		queryset = Post.objects.all()
 		post = get_object_or_404(queryset, pk=pk)
-		storage, path = post.image.storage, post.image.path
-		print(storage, path, post.image)
-		storage.delete(path)
-		post.delete()
-		return Response({'post': post.as_json(), 'message': 'post was deleted'}, status.HTTP_200_OK)
+		if post.author is request.user:
+			storage, path = post.image.storage, post.image.path
+			storage.delete(path)
+			post.delete()
+			return Response({'post': post.as_json(), 'message': 'post was deleted'}, status.HTTP_200_OK)
+		else:
+			return Response({'message': 'user is not author of post'}, status.HTTP_401_UNAUTHORIZED)
 
 
 class CommentsViewSet(viewsets.ModelViewSet):
