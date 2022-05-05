@@ -1,5 +1,3 @@
-from abc import ABC
-
 from django.contrib.auth.hashers import make_password
 from rest_framework import serializers
 from rest_auth.registration.serializers import RegisterSerializer

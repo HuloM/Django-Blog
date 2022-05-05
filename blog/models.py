@@ -22,7 +22,6 @@ class Post(models.Model):
 			body=self.body,
 			date_created=self.date_created,
 			date_updated=self.date_created,
-			slug=self.slug,
 			author=self.author.as_json()
 		)
 
