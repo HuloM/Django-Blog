@@ -1,4 +1,5 @@
 from django.contrib.auth.models import AnonymousUser
+from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils.text import slugify
 from django.core.paginator import Paginator
@@ -25,12 +26,12 @@ class PostsViewSet(viewsets.ModelViewSet):
 		posts = self.queryset
 
 		p = Paginator([post.list_json() for post in posts], 3)
-		return Response({'posts': p.page(pk).object_list, 'message': 'list of posts retrieved'}, status.HTTP_200_OK)
+		return Response({'posts': p.page(pk).object_list, 'message': 'Posts Retrieved Successfully'}, status.HTTP_200_OK)
 
 	@parser_classes(MultiPartParser)
 	def create(self, request):
 		if type(request.user) is AnonymousUser:
-			return Response({'message': 'not authorized'}, status.HTTP_401_UNAUTHORIZED)
+			return Response({'message': 'Not Authorized'}, status.HTTP_401_UNAUTHORIZED)
 		# when sending a post request, django will store that in
 		# request.data with the name of form items being keys
 		if 'image' not in request.FILES:
@@ -49,7 +50,7 @@ class PostsViewSet(viewsets.ModelViewSet):
 		# objects
 		post.save()
 		# returning JSON with post data and status code
-		return Response({'post': post.as_json(), 'message': 'Post created'}, status.HTTP_200_OK)
+		return Response({'post': post.as_json(), 'message': 'Post Created Successfully'}, status.HTTP_200_OK)
 
 	@parser_classes(MultiPartParser)
 	def update(self, request, pk=None):
@@ -75,27 +76,29 @@ class PostViewSet(viewsets.ModelViewSet):
 						status.HTTP_405_METHOD_NOT_ALLOWED)
 
 	def retrieve(self, request, pk=None, **kwargs):
-		# .objects and .objects.all() are dynamically made by django
-		# and will result in returning the entire list of rows
+		# attempting to see if post with the given id exists
+		try:
+			post = Post.objects.get(pk=pk)
+		except Post.DoesNotExist:
+			return Response({'message': 'That post does not exist'}, status.HTTP_404_NOT_FOUND)
 
-		post = get_object_or_404(self.queryset, pk=pk)
-		return Response({'post': post.as_json(), 'message': 'single post retrieved'}, status.HTTP_200_OK)
+		return Response({'post': post.as_json(), 'message': 'Post Retrieved Successfully'}, status.HTTP_200_OK)
 
 	@parser_classes(MultiPartParser)
 	def update(self, request, pk=None):
 		if type(request.user) is AnonymousUser:
-			return Response({'message': 'not authorized'}, status.HTTP_401_UNAUTHORIZED)
-		# similar to retrieve we get the whole list and then look for the
-		# one that matches the pk we passed
-		queryset = Post.objects.all()
-		post = get_object_or_404(queryset, pk=pk)
+			return Response({'message': 'Not Authorized'}, status.HTTP_401_UNAUTHORIZED)
+		# attempting to see if post with the given id exists
+		try:
+			post = Post.objects.get(pk=pk)
+		except Post.DoesNotExist:
+			return Response({'message': 'That post does not exist'}, status.HTTP_404_NOT_FOUND)
 
 		# user authentication to see if post author is the user
 		if post.author == request.user:
 			storage, path, image = post.image.storage, post.image.path, str(post.image).split('/')[1]
 			# checking if the user passed in a new image
 			if 'image' in request.FILES:
-				print(request.FILES['image'].name.split('.')[1])
 				if request.FILES['image'].name.split('.')[1].lower() not in ['png', 'jpeg', 'jpg']:
 					return Response({'message': 'incorrect file type submitted (accepted: PNG, JPG, JPEG)'},
 									status.HTTP_422_UNPROCESSABLE_ENTITY)
@@ -106,16 +109,19 @@ class PostViewSet(viewsets.ModelViewSet):
 			post.body = request.data['body'] or post.body
 			# after changing the wanted variables we call .save() to update the database
 			post.save()
-			return Response({'post': post.as_json(), 'message': 'post updated'}, status.HTTP_200_OK)
+			return Response({'post': post.as_json(), 'message': 'Post Updated Successfully'}, status.HTTP_200_OK)
 		else:
-			return Response({'message': 'user is not author of post'}, status.HTTP_401_UNAUTHORIZED)
+			return Response({'message': 'User is not author of post'}, status.HTTP_401_UNAUTHORIZED)
 
 	def destroy(self, request, pk=None, **kwargs):
 		if type(request.user) is AnonymousUser:
-			return Response({'message': 'not authorized'}, status.HTTP_401_UNAUTHORIZED)
+			return Response({'message': 'Not Authorized'}, status.HTTP_401_UNAUTHORIZED)
+		# attempting to see if post with the given id exists
+		try:
+			post = Post.objects.get(pk=pk)
+		except Post.DoesNotExist:
+			return Response({'message': 'That post does not exist'}, status.HTTP_404_NOT_FOUND)
 
-		queryset = Post.objects.all()
-		post = get_object_or_404(queryset, pk=pk)
 		# user authentication to see if post author is the user
 		if post.author is request.user:
 			# deleting the image before we delete the post
@@ -123,9 +129,9 @@ class PostViewSet(viewsets.ModelViewSet):
 			storage.delete(path)
 			# .delete() is another method django makes to delete rows
 			post.delete()
-			return Response({'post': post.as_json(), 'message': 'Post deleted Successfully'}, status.HTTP_200_OK)
+			return Response({'post': post.as_json(), 'message': 'Post Deleted Successfully'}, status.HTTP_200_OK)
 		else:
-			return Response({'message': 'user is not author of post'}, status.HTTP_401_UNAUTHORIZED)
+			return Response({'message': 'User is not author of post'}, status.HTTP_401_UNAUTHORIZED)
 
 
 class CommentsViewSet(viewsets.ModelViewSet):
@@ -133,17 +139,12 @@ class CommentsViewSet(viewsets.ModelViewSet):
 	serializer_class = CommentSerializer
 
 	def list(self, request, **kwargs):
-		comments = self.queryset
-		return Response(
-			{
-				'posts': [comment.as_json() for comment in comments],
-				'message': 'list of comments retrieved'
-			}, status.HTTP_200_OK)
+		return Response({'message': 'A comment may not be retrieved like this'}, status.HTTP_405_METHOD_NOT_ALLOWED)
 
 	@parser_classes(MultiPartParser)
 	def create(self, request):
 		if type(request.user) is AnonymousUser:
-			return Response({'message': 'not authorized'}, status.HTTP_401_UNAUTHORIZED)
+			return Response({'message': 'Not Authorized'}, status.HTTP_401_UNAUTHORIZED)
 		post = get_object_or_404(Post.objects.all(), pk=request.data['postId'])
 
 		comment = Comment(
@@ -152,7 +153,7 @@ class CommentsViewSet(viewsets.ModelViewSet):
 			author=request.user
 		)
 		comment.save()
-		return Response({'comment created'}, status.HTTP_200_OK)
+		return Response({'message': 'Comment Created Successfully', 'comment': comment.as_json()}, status.HTTP_HTTP_200_OK)
 
 	def retrieve(self, request, pk=None, **kwargs):
 		return Response({'message': 'A comment may not be retrieved like this'}, status.HTTP_405_METHOD_NOT_ALLOWED)
