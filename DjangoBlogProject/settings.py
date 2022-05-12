@@ -47,12 +47,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.sites',
     'corsheaders',
-    'allauth',
-    'allauth.account',
     'rest_framework',
     'rest_framework.authtoken',
-    'dj_rest_auth',
-    'dj_rest_auth.registration',
     'blog',
     'user'
 ]
@@ -153,10 +149,7 @@ MEDIA_URL = '/user-media/'
 # Custom User model
 AUTH_USER_MODEL = 'user.User'
 
-# Rest_auth settings
-REST_AUTH_REGISTER_SERIALIZERS = {
-    "REGISTER_SERIALIZER": "user.serializers.RegisterUserSerializer",
-}
+# REST framework settings
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny',
@@ -188,5 +181,3 @@ SIMPLE_JWT = {
 
 # CORS Settings
 CORS_ORIGIN_ALLOW_ALL = True
-
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
