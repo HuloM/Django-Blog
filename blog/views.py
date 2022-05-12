@@ -1,12 +1,10 @@
 from django.contrib.auth.models import AnonymousUser
-from django.http import Http404
 from django.shortcuts import get_object_or_404
-from django.utils.text import slugify
 from django.core.paginator import Paginator
 from rest_framework import viewsets, status
 from rest_framework.decorators import parser_classes
 from rest_framework.response import Response
-from rest_framework.parsers import MultiPartParser, JSONParser
+from rest_framework.parsers import MultiPartParser
 
 from .models import Post, Comment
 from .serializers import PostSerializer, CommentSerializer

@@ -8,11 +8,13 @@ class PostSerializer(serializers.ModelSerializer):
 		model = Post
 		fields = '__all__'
 
-	# DELETE: http://localhost:8000/blog/posts/<id>/ body = None
-	# PUT: http://localhost:8000/blog/posts/<id>/ body = {title, image, body, author}
+	# GET single object: http://localhost:8000/blog/post/<id>/ body = None
+	# DELETE: http://localhost:8000/blog/post/<id>/ body = None
+	# PUT: http://localhost:8000/blog/post/<id>/ body = {title, image, body, author}
+
 	# POST: http://localhost:8000/blog/posts/ body = {title, image, body, author}
 	# GET: http://localhost:8000/blog/posts/
-	# GET single object: http://localhost:8000/blog/posts/<id>/ body = None
+
 	# IMAGES can be found: http://localhost:8000/user-media/images/<image file>
 
 
@@ -22,6 +24,4 @@ class CommentSerializer(serializers.ModelSerializer):
 		model = Comment
 		fields = '__all__'
 
-	# POST: http://localhost:8000/blog/posts/comments body = {title, image, body, author}
-	# GET: http://localhost:8000/blog/posts/<id>/comments
-	# GET single object: http://localhost:8000/blog/posts/<id>/comments/<id>/
+	# POST: http://localhost:8000/blog/post/comments body = {postId}

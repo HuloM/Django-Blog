@@ -1,3 +1,5 @@
+import re
+
 from django.contrib.auth.password_validation import validate_password
 from .models import User
 from rest_framework import serializers
@@ -22,18 +24,19 @@ class RegisterUserSerializer(serializers.ModelSerializer):
 		model = User
 		fields = ('email', 'username', 'password', 'confirmPassword', 'first_name', 'last_name')
 
+	# custom validation
 	def validate(self, attrs):
 		if attrs['password'] != attrs['confirmPassword']:
 			raise serializers.ValidationError(
-				{'password': 'Password fields didn\'t match.'})
+				{'password': 'passwords must match'})
 
 		if User.objects.filter(username=attrs['username']).exists():
 			raise serializers.ValidationError(
-				{'username': 'User with this username already exists.'})
+				{'username': 'User with this username already exists'})
 
 		if User.objects.filter(email=attrs['email']).exists():
 			raise serializers.ValidationError(
-				{'email': 'User with this email already exists.'})
+				{'email': 'This email is already registered with us, please login'})
 
 		return attrs
 
@@ -41,8 +44,8 @@ class RegisterUserSerializer(serializers.ModelSerializer):
 		password = validated_data.pop('password', None)
 		confirmPassword = validated_data.pop('confirmPassword', None)
 		# as long as the fields are the same, we can just use this
-		instance = self.Meta.model(**validated_data)
+		post = self.Meta.model(**validated_data)
 		if password is not None:
-			instance.set_password(password)
-		instance.save()
-		return instance
+			post.set_password(password)
+		post.save()
+		return post
