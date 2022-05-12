@@ -34,7 +34,7 @@ class PostsViewSet(viewsets.ModelViewSet):
 		# request.data with the name of form items being keys
 		if 'image' not in request.FILES:
 			return Response({'message': 'No image uploaded'}, status.HTTP_422_UNPROCESSABLE_ENTITY)
-		if request.FILES['image'].split('.')[1] not in ['png', 'jpeg', 'jpg']:
+		if request.FILES['image'].name.split('.')[1].lower() not in ['png', 'jpeg', 'jpg']:
 			return Response({'message': 'incorrect file type submitted (accepted: PNG, JPG, JPEG)'},
 							status.HTTP_422_UNPROCESSABLE_ENTITY)
 
