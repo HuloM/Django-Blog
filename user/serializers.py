@@ -1,44 +1,48 @@
-from django.contrib.auth.hashers import make_password
-from rest_framework import serializers
-from rest_auth.registration.serializers import RegisterSerializer
+from django.contrib.auth.password_validation import validate_password
 from .models import User
+from rest_framework import serializers
 
 
 class UserSerializer(serializers.ModelSerializer):
-
 	class Meta:
 		model = User
-		fields = ('username', 'email', 'first_name', 'last_name')
-		read_only_fields = ('username', 'email')
+		fields = '__all__'
 
 
-class RegisterUserSerializer(RegisterSerializer):
+class RegisterUserSerializer(serializers.ModelSerializer):
 	email = serializers.EmailField(required=True)
 	username = serializers.CharField(required=True)
 	first_name = serializers.CharField(required=True)
 	last_name = serializers.CharField(required=True)
+	password = serializers.CharField(
+		write_only=True, required=True, validators=[validate_password])
+	confirmPassword = serializers.CharField(write_only=True, required=True)
 
-	def get_cleaned_data(self):
-		super(RegisterUserSerializer, self).get_cleaned_data()
+	class Meta:
+		model = User
+		fields = ('email', 'username', 'password', 'confirmPassword', 'first_name', 'last_name')
 
-		return {
-			'email': self.validated_data.get('email', ''),
-			'username': self.validated_data.get('username', ''),
-			'password': self.validated_data.get('password1', ''),
-			'first_name': self.validated_data.get('first_name', ''),
-			'last_name': self.validated_data.get('last_name', '')
-		}
+	def validate(self, attrs):
+		if attrs['password'] != attrs['confirmPassword']:
+			raise serializers.ValidationError(
+				{'password': 'Password fields didn\'t match.'})
 
-	def save(self, request):
-		self.cleaned_data = self.get_cleaned_data()
-		hashed_password = make_password(self.cleaned_data['password'])
-		user = User(
-			email=self.cleaned_data['email'],
-			username=self.cleaned_data['username'],
-			first_name=self.cleaned_data['first_name'],
-			last_name=self.cleaned_data['last_name'],
-			password=hashed_password
-		)
-		user.save()
-		return user
+		if User.objects.filter(username=attrs['username']).exists():
+			raise serializers.ValidationError(
+				{'username': 'User with this username already exists.'})
 
+		if User.objects.filter(email=attrs['email']).exists():
+			raise serializers.ValidationError(
+				{'email': 'User with this email already exists.'})
+
+		return attrs
+
+	def create(self, validated_data):
+		password = validated_data.pop('password', None)
+		confirmPassword = validated_data.pop('confirmPassword', None)
+		# as long as the fields are the same, we can just use this
+		instance = self.Meta.model(**validated_data)
+		if password is not None:
+			instance.set_password(password)
+		instance.save()
+		return instance

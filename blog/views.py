@@ -1,12 +1,12 @@
-from django.core import serializers
+from django.contrib.auth.models import AnonymousUser
 from django.shortcuts import get_object_or_404
 from django.utils.text import slugify
+from django.core.paginator import Paginator
 from rest_framework import viewsets, status
 from rest_framework.decorators import parser_classes
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, JSONParser
 
-from user.models import User
 from .models import Post, Comment
 from .serializers import PostSerializer
 
@@ -18,18 +18,22 @@ class PostsViewSet(viewsets.ModelViewSet):
 
 	def list(self, request, **kwargs):
 		# returning all posts (this can be a good place to add pagination)
-		posts = Post.objects.all()
-		return Response({'posts': [post.as_json() for post in posts], 'message': 'list of posts retrieved'}, status.HTTP_200_OK)
+		posts = self.queryset
+
+		p = Paginator([post.list_json() for post in posts], 4)
+		return Response({'posts': p.page(request.data['page'] or 1), 'message': 'list of posts retrieved'}, status.HTTP_200_OK)
 
 	@parser_classes(MultiPartParser)
 	def create(self, request):
+		if type(request.user) is AnonymousUser:
+			return Response({'message': 'not authorized'}, status.HTTP_401_UNAUTHORIZED)
 		# when sending a post request, django will store that in
 		# request.data with the name of form items being keys
+		print('made it past')
 		post = Post(
 			title=request.data['title'],
 			image=request.data['image'],
 			body=request.data['body'],
-			slug=slugify(request.data['title']),
 			author=request.user
 		)
 		# .save() is a method that django dynamically makes to save model
@@ -51,6 +55,8 @@ class PostsViewSet(viewsets.ModelViewSet):
 
 	@parser_classes(MultiPartParser)
 	def update(self, request, pk=None):
+		if type(request.user) is AnonymousUser:
+			return Response({'message': 'not authorized'}, status.HTTP_401_UNAUTHORIZED)
 		# similar to retrieve we get the whole list and then look for the
 		# one that matches the pk we passed
 		queryset = Post.objects.all()
@@ -78,6 +84,9 @@ class PostsViewSet(viewsets.ModelViewSet):
 			return Response({'message': 'user is not author of post'}, status.HTTP_401_UNAUTHORIZED)
 
 	def destroy(self, request, pk=None, **kwargs):
+		if type(request.user) is AnonymousUser:
+			return Response({'message': 'not authorized'}, status.HTTP_401_UNAUTHORIZED)
+
 		queryset = Post.objects.all()
 		post = get_object_or_404(queryset, pk=pk)
 		# user authentication to see if post author is the user
@@ -106,10 +115,13 @@ class CommentsViewSet(viewsets.ModelViewSet):
 
 	@parser_classes(JSONParser)
 	def create(self, request):
+		if type(request.user) is AnonymousUser:
+			return Response({'message': 'not authorized'}, status.HTTP_401_UNAUTHORIZED)
+
 		comment = Comment(
 			comment=request.data['comment'],
-			post=request.data['post'] or None,
-			author=request.data['author'] or None
+			post=request.data['post'],
+			author=request.user
 		)
 		comment.save()
 		return Response({'comment created'}, status.HTTP_200_OK)
@@ -119,9 +131,11 @@ class CommentsViewSet(viewsets.ModelViewSet):
 		comment = get_object_or_404(queryset, pk=pk)
 		return Response({'post': comment.as_json(), 'message': 'single comment retrieved'}, status.HTTP_200_OK)
 
+	# preventing user from trying to update comment
 	def update(self, request, pk=None, **kwargs):
 		return Response({'message': 'A comment may not be changed once posted'}, status.HTTP_401_UNAUTHORIZED)
 
+	# preventing user from trying to delete comment
 	def destroy(self, request, pk=None, **kwargs):
 		return Response({'message': 'A comment may not be deleted once posted'}, status.HTTP_401_UNAUTHORIZED)
 

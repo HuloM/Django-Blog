@@ -17,8 +17,8 @@ class User(AbstractBaseUser):
 	first_name = models.CharField(max_length=20)
 	last_name = models.CharField(max_length=20)
 
-	USERNAME_FIELD = 'username'
-	REQUIRED_FIELDS = ['email', 'first_name', 'last_name', 'password']
+	USERNAME_FIELD = 'email'
+	REQUIRED_FIELDS = ['username', 'first_name', 'last_name', 'password']
 
 	objects = CustomUserManager()
 
@@ -34,7 +34,6 @@ class User(AbstractBaseUser):
 	def as_json(self):
 		return dict(
 			id=self.id,
-			username=self.username or None,
-			name=(self.first_name + ' ' + self.last_name) or None,
-			email=self.email or None
+			username=self.username,
+			name=(self.first_name + ' ' + self.last_name),
 		)
