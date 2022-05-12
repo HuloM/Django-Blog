@@ -20,7 +20,8 @@ class Post(models.Model):
 			imageUrl=str(self.image.url),
 			body=self.body,
 			createdAt=self.date_created,
-			author=self.author.as_json()
+			author=self.author.as_json(),
+			comments=[comment.as_json() for comment in self.comments.filter(post_id=self.id)],
 		)
 
 	def list_json(self):
@@ -34,8 +35,8 @@ class Post(models.Model):
 
 class Comment(models.Model):
 	comment = models.TextField()
-	author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='comment_author')
-	post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='post')
+	author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='user_comments')
+	post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments', null=True, blank=True)
 
 	def as_json(self):
 		return dict(
