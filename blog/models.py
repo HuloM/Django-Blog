@@ -9,8 +9,11 @@ class Post(models.Model):
 	body = models.TextField()
 	date_created = models.DateTimeField(auto_now_add=True)
 	date_updated = models.DateTimeField(auto_now=True)
+
+	# this will use the default django user model as the model
 	author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='author')
 
+	# when a detailed post is needed
 	def as_json(self):
 		return dict(
 			id=self.id,
@@ -22,6 +25,7 @@ class Post(models.Model):
 			comments=[comment.as_json() for comment in self.comments.filter(post_id=self.id)],
 		)
 
+	# when a less detailed list of posts is needed
 	def list_json(self):
 		return dict(
 			id=self.id,

@@ -1,8 +1,9 @@
-import re
-
 from django.contrib.auth.password_validation import validate_password
-from .models import User
 from rest_framework import serializers
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenRefreshSerializer
+from rest_framework_simplejwt.tokens import RefreshToken
+
+from .models import User
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -49,3 +50,26 @@ class RegisterUserSerializer(serializers.ModelSerializer):
 			post.set_password(password)
 		post.save()
 		return post
+
+
+class TokenObtainLifetimeSerializer(TokenObtainPairSerializer):
+
+	def validate(self, attrs):
+		data = super().validate(attrs)
+		refresh = self.get_token(self.user)
+		# renaming access key to token to avoid chaning frontend for django specific
+		data['token'] = data.pop('access')
+		# setting additional keys to provide necessary information for frontend
+		data['lifetime'] = int(refresh.access_token.lifetime.total_seconds())
+		data['userId'] = self.user.id
+		data['username'] = self.user.username
+		return data
+
+
+class TokenRefreshLifetimeSerializer(TokenRefreshSerializer):
+
+	def validate(self, attrs):
+		data = super().validate(attrs)
+		refresh = RefreshToken(attrs['refresh'])
+		data['lifetime'] = int(refresh.access_token.lifetime.total_seconds())
+		return data

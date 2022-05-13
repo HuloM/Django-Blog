@@ -13,6 +13,7 @@ from .serializers import PostSerializer, CommentSerializer
 # Create your views here.
 class PostsViewSet(viewsets.ModelViewSet):
 	queryset = Post.objects.all()
+	# specifying the serializer class to use
 	serializer_class = PostSerializer
 
 	def list(self, request, **kwargs):
@@ -24,14 +25,15 @@ class PostsViewSet(viewsets.ModelViewSet):
 		posts = self.queryset
 
 		p = Paginator([post.list_json() for post in posts], 3)
-		return Response({'posts': p.page(pk).object_list, 'message': 'Posts Retrieved Successfully'}, status.HTTP_200_OK)
+		print(p.num_pages)
+		return Response({'posts': p.page(pk).object_list, 'message': 'Posts Retrieved Successfully', 'totalPages': p.num_pages}, status.HTTP_200_OK)
 
 	@parser_classes(MultiPartParser)
 	def create(self, request):
 		if type(request.user) is AnonymousUser:
 			return Response({'message': 'Not Authorized'}, status.HTTP_401_UNAUTHORIZED)
-		# when sending a post request, django will store that in
-		# request.data with the name of form items being keys
+		# when sending a post request, django will store files in
+		# request.FILES with the name of form items being keys
 		if 'image' not in request.FILES:
 			return Response({'message': 'No image uploaded'}, status.HTTP_422_UNPROCESSABLE_ENTITY)
 		if request.FILES['image'].name.split('.')[1].lower() not in ['png', 'jpeg', 'jpg']:
@@ -62,6 +64,7 @@ class PostsViewSet(viewsets.ModelViewSet):
 
 class PostViewSet(viewsets.ModelViewSet):
 	queryset = Post.objects.all()
+	# specifying the serializer class to use
 	serializer_class = PostSerializer
 
 	def list(self, request, **kwargs):

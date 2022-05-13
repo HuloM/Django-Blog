@@ -17,6 +17,7 @@ class User(AbstractBaseUser):
 	first_name = models.CharField(max_length=20)
 	last_name = models.CharField(max_length=20)
 
+	# setting login to use email as the login field
 	USERNAME_FIELD = 'email'
 	REQUIRED_FIELDS = ['username', 'first_name', 'last_name', 'password']
 
