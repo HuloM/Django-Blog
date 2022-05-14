@@ -154,7 +154,7 @@ class CommentsViewSet(viewsets.ModelViewSet):
 			author=request.user
 		)
 		comment.save()
-		return Response({'message': 'Comment Created Successfully', 'comment': comment.as_json()}, status.HTTP_HTTP_200_OK)
+		return Response({'message': 'Comment Created Successfully', 'comment': comment.as_json()}, status.HTTP_200_OK)
 
 	def retrieve(self, request, pk=None, **kwargs):
 		return Response({'message': 'A comment may not be retrieved like this'}, status.HTTP_405_METHOD_NOT_ALLOWED)
