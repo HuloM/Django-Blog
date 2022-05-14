@@ -28,12 +28,12 @@ environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env('SECRET_KEY')
+SECRET_KEY = 'django-insecure-0e&5isezjog+cc1&7wpieghu!bz!19@t!ct8gu510rky-e)h3y'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['djangoblog-env.eba-qp33a6ny.us-west-2.elasticbeanstalk.com']
 
 
 # Application definition
@@ -91,14 +91,14 @@ WSGI_APPLICATION = 'DjangoBlogProject.wsgi.application'
 
 DATABASES = {
     'default': {
-            # 'ENGINE': 'django.db.backends.sqlite3',
-            # 'NAME': BASE_DIR / 'db.sqlite3',
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': 'postgres',
-            'USER': 'postgres',
-            'PASSWORD': 'postgres',
-            'HOST': 'db',
-            'PORT': 5432,
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+            # 'ENGINE': 'django.db.backends.postgresql',
+            # 'NAME': 'postgres',
+            # 'USER': 'postgres',
+            # 'PASSWORD': 'postgres',
+            # 'HOST': 'db',
+            # 'PORT': 5432,
         }
 }
 
