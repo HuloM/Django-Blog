@@ -25,7 +25,6 @@ class PostsViewSet(viewsets.ModelViewSet):
 		posts = self.queryset
 
 		p = Paginator([post.list_json() for post in posts], 3)
-		print(p.num_pages)
 		return Response({'posts': p.page(pk).object_list, 'message': 'Posts Retrieved Successfully', 'totalPages': p.num_pages}, status.HTTP_200_OK)
 
 	@parser_classes(MultiPartParser)
