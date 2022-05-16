@@ -17,8 +17,7 @@ class PostsViewSet(viewsets.ModelViewSet):
 	serializer_class = PostSerializer
 
 	def list(self, request, **kwargs):
-		return Response({'message': 'wrong endpoint for this action try GET request with /posts/<page>'},
-						status.HTTP_405_METHOD_NOT_ALLOWED)
+		pass
 
 	def retrieve(self, request, pk=None, **kwargs):
 		# returning all posts (this can be a good place to add pagination)
@@ -46,19 +45,16 @@ class PostsViewSet(viewsets.ModelViewSet):
 			author=request.user
 		)
 		# .save() is a method that django dynamically makes to save model
-		# objects
 		post.save()
-		# returning JSON with post data and status code
+
 		return Response({'post': post.as_json(), 'message': 'Post Created Successfully'}, status.HTTP_200_OK)
 
 	@parser_classes(MultiPartParser)
 	def update(self, request, pk=None):
-		return Response({'message': 'wrong endpoint for this action try PUT request with /post/<postId>'},
-						status.HTTP_405_METHOD_NOT_ALLOWED)
+		pass
 
 	def destroy(self, request, pk=None, **kwargs):
-		return Response({'message': 'wrong endpoint for this action try DELETE request with /post/<postId>'},
-						status.HTTP_405_METHOD_NOT_ALLOWED)
+		pass
 
 
 class PostViewSet(viewsets.ModelViewSet):
@@ -67,13 +63,10 @@ class PostViewSet(viewsets.ModelViewSet):
 	serializer_class = PostSerializer
 
 	def list(self, request, **kwargs):
-		return Response({'message': 'wrong endpoint for this action try GET request with /posts/<page>'},
-						status.HTTP_405_METHOD_NOT_ALLOWED)
+		pass
 
-	@parser_classes(MultiPartParser)
 	def create(self, request):
-		return Response({'message': 'wrong endpoint for this action try POST request with /posts/'},
-						status.HTTP_405_METHOD_NOT_ALLOWED)
+		pass
 
 	def retrieve(self, request, pk=None, **kwargs):
 		# attempting to see if post with the given id exists
